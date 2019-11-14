@@ -3,11 +3,10 @@ def k_strings(string, k=3):
     if k > len(string):
         raise ValueError("unable to compute k-strings for strings with length less than k")
 
-    end_index = len(string) - k + 1
+    n = len(string) - k + 1
 
-    return [string[i:i+k] for i in range(end_index)]
+    return [string[i:i+k] for i in range(n)]
 
-print(k_strings("hello", 2))
 assert k_strings("hello", 2) == ["he", "el", "ll", "lo"], "k_strings test failed"
 
 def rolling_hash(message, message_id, k=3):
