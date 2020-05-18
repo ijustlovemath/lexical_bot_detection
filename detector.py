@@ -33,18 +33,42 @@ def common_phrases(messages, k):
         
     return phrases
 
-def is_bot(bot_posts):
+def all_equal(iterator):
+    iterator = iter(iterator)
+
+    try:
+        first = next(iterator)
+    except StopIteration:
+        return True
+    return all(first == rest for rest in iterator)
+
+def is_bot(bot_posts, minimum_phrase_length=10, maximum_post_length=50):
+    ''' generate all common phrases from 10 to the length of the minimum post
+    Looks like this essentially gets the longest phrases possible'''
     score = 0.0
-    for k in range(10, min(len(post) for post in bot_posts)):
+    minimum_phrase_length = 10
+
+    # trivial check for silly bots
+    if all_equal(bot_posts):
+        return True
+
+    latest_phrases = set()
+    bot_posts = [post for post in bot_posts if len(post) > minimum_phrase_length]
+    minimum_post_length = min(len(post) for post in bot_posts)
+    minimum_post_length = min(minimum_post_length, maximum_post_length)
+    if minimum_post_length < minimum_phrase_length + 1:
+        raise ValueError
+    for k in range(minimum_post_length, minimum_phrase_length, -1):
         phrases = common_phrases(bot_posts, k)
         if phrases != set():
             latest_phrases = phrases
         score += len(phrases)
+        for post in bot_posts:
+            for phrase in latest_phrases:
+                if post.endswith(phrase) or post.startswith(phrase):
+                    return True
 
-    for post in bot_posts:
-        for phrase in latest_phrases:
-            if post.endswith(phrase):
-                return True
     return False
 
-print(is_bot(["foo this is a bot", "bar this is a bot", "hi this is a longer post this is a bot"]))
+if __name__ == '__main__':
+    print(is_bot(["foo this is a bot", "bar this is a bot", "hi this is a longer post this is a bot"]))
